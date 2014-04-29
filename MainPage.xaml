@@ -1,0 +1,205 @@
+﻿<phone:PhoneApplicationPage
+    x:Class="Galleria.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="768"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait"  Orientation="Portrait"
+    shell:SystemTray.IsVisible="False">
+
+    <toolkit:TransitionService.NavigationInTransition>
+        <toolkit:NavigationInTransition>
+            <toolkit:NavigationInTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardIn"/>
+            </toolkit:NavigationInTransition.Backward>
+            <toolkit:NavigationInTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardIn"/>
+            </toolkit:NavigationInTransition.Forward>
+        </toolkit:NavigationInTransition>
+    </toolkit:TransitionService.NavigationInTransition>
+    <toolkit:TransitionService.NavigationOutTransition>
+        <toolkit:NavigationOutTransition>
+            <toolkit:NavigationOutTransition.Backward>
+                <toolkit:TurnstileTransition Mode="BackwardOut"/>
+            </toolkit:NavigationOutTransition.Backward>
+            <toolkit:NavigationOutTransition.Forward>
+                <toolkit:TurnstileTransition Mode="ForwardOut"/>
+            </toolkit:NavigationOutTransition.Forward>
+        </toolkit:NavigationOutTransition>
+    </toolkit:TransitionService.NavigationOutTransition>
+
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <Grid x:Name="gPivot" Visibility="Visible">
+            <controls:Pivot Title="GALLERIA" SelectionChanged="Pivot_SelectionChanged">
+
+                <!-- All images by Jeff Wilcox, used with permission -->
+                <controls:PivotItem Header="food">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <ProgressBar Grid.Row="0" x:Name="pbar" IsIndeterminate="True" VerticalAlignment="Top" HorizontalAlignment="Stretch"  Visibility="{Binding IsDataLoaded, Converter={StaticResource ProgressBarVisibilityConverter}}">
+                        </ProgressBar>
+                        <ListBox Grid.Row="0" Margin="22,0,12,5" ItemsSource="{Binding FoodItems}" SelectionChanged="MainListBox_SelectionChanged">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel Orientation="Horizontal" FlowDirection="LeftToRight" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <ListBoxItem>
+                                        <Grid>
+                                            <toolkit:HubTile
+                                             Margin="0,0,16,16"
+                                             Source="{Binding Url}"
+                                             Title="{Binding Title}"
+                                             Message="{Binding Message}"
+                                             GroupTag="{Binding Category}" />
+                                        </Grid>
+                                    </ListBoxItem>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <TextBlock Grid.Row="0" Margin="5,0,0,0" Visibility="{Binding NoFoodItems, Converter={StaticResource BoolVisibilityConverter}}" Text="No images found for Food Category." Style="{StaticResource PhoneTextSmallStyle}" />
+                    </Grid>
+                </controls:PivotItem>
+
+                <controls:PivotItem Header="places">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <ProgressBar Grid.Row="0" IsIndeterminate="True" VerticalAlignment="Top" HorizontalAlignment="Stretch"  Visibility="{Binding IsDataLoaded, Converter={StaticResource ProgressBarVisibilityConverter}}">
+                        </ProgressBar>
+                        <ListBox Grid.Row="0" Margin="22,0,12,5" ItemsSource="{Binding PlaceItems}" SelectionChanged="MainListBox_SelectionChanged">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel Orientation="Horizontal" FlowDirection="LeftToRight" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <ListBoxItem>
+                                        <Grid>
+                                            <toolkit:HubTile
+                                             Margin="0,0,16,16"
+                                             Source="{Binding Url}"
+                                             Title="{Binding Title}"
+                                             Message="{Binding Message}"
+                                             GroupTag="{Binding Category}" />
+                                        </Grid>
+                                    </ListBoxItem>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <TextBlock Grid.Row="0" Margin="5,0,0,0" Visibility="{Binding NoPlaceItems, Converter={StaticResource BoolVisibilityConverter}}" Text="No images found for Places Category" Style="{StaticResource PhoneTextSmallStyle}" />
+                    </Grid>
+                </controls:PivotItem>
+
+                <controls:PivotItem Header="people">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <ProgressBar Grid.Row="0" IsIndeterminate="True" VerticalAlignment="Top" HorizontalAlignment="Stretch"  Visibility="{Binding IsDataLoaded, Converter={StaticResource ProgressBarVisibilityConverter}}">
+                        </ProgressBar>
+                        <ListBox Grid.Row="0" Margin="22,0,12,5" ItemsSource="{Binding PeopleItems}" SelectionChanged="MainListBox_SelectionChanged">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel Orientation="Horizontal" FlowDirection="LeftToRight" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <ListBoxItem>
+                                        <Grid>
+                                            <toolkit:HubTile
+                                             Margin="0,0,16,16"
+                                             Source="{Binding Url}"
+                                             Title="{Binding Title}"
+                                             Message="{Binding Message}"
+                                             GroupTag="{Binding Category}" />
+                                        </Grid>
+                                    </ListBoxItem>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <TextBlock Grid.Row="0" Margin="5,0,0,0" Visibility="{Binding NoPeopleItems, Converter={StaticResource BoolVisibilityConverter}}" Text="No images found for People Category" Style="{StaticResource PhoneTextSmallStyle}" />
+                    </Grid>
+                </controls:PivotItem>
+            </controls:Pivot>
+        </Grid>
+        <Grid x:Name="gAddImage" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!--TitlePanel contains the name of the application and page title-->
+            <StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="12,17,0,15">
+                <TextBlock x:Name="PageTitle" Text="GALLERIA" Style="{StaticResource PhoneTextNormalStyle}"/>
+                <TextBlock x:Name="ListTitle" Text="upload image" Margin="9,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="1"  Margin="14,0,12,15">
+                <TextBlock Text="Title" Margin="10,0,0,-4" Style="{StaticResource PhoneTextSmallStyle}"/>
+                <TextBox x:Name="txtTitle" />
+            </StackPanel>
+
+            <StackPanel Grid.Row="2"  Margin="14,0,12,15">
+                <TextBlock Text="Message (optional)" Margin="10,0,0,-4" Style="{StaticResource PhoneTextSmallStyle}"/>
+                <TextBox x:Name="txtMessage"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="3"  Margin="14,0,12,15">
+                <toolkit:ListPicker x:Name="lstCategory" Grid.Row="0"  Margin="15,0,15,15">
+                    <toolkit:ListPicker.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="Category"/>
+                        </DataTemplate>
+                    </toolkit:ListPicker.HeaderTemplate>
+                </toolkit:ListPicker>
+            </StackPanel>
+            <StackPanel Grid.Row="4"  Margin="22,0,12,15">
+                <TextBlock Text="Choose Image" Margin="10,0,0,-6" Style="{StaticResource PhoneTextSmallStyle}"/>
+            </StackPanel>
+            <Grid Grid.Row="5" Margin="32,0" HorizontalAlignment="Left">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.5*" />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="0.5*"/>
+                </Grid.ColumnDefinitions>
+
+                <Rectangle Grid.Row="0" Tap="Camera_Tap" Grid.Column="0" Fill="{StaticResource PhoneAccentBrush}" Width="185" Height="185" />
+                <Image Source="/Assets/Media/HumanAddCamera.png" Tap="Camera_Tap" Width="100" Height="100" Grid.Row="0" Grid.Column="0"/>
+                <TextBlock Text="take a photo" Tap="Camera_Tap" Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" Margin="18,4,0,4" />
+
+                <Rectangle Grid.Row="0" Tap="Media_Tap" Grid.Column="2" Fill="{StaticResource PhoneAccentBrush}" Width="185" Height="185"/>
+                <Image Source="/Assets/Media/HumanAdd.png" Tap="Media_Tap" Width="100" Height="100" Grid.Row="0" Grid.Column="2"/>
+                <TextBlock Text="upload from library" Tap="Media_Tap" Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom" Margin="12,4,10,4" />
+            </Grid>
+        </Grid>
+    </Grid>
+    
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar>
+            <shell:ApplicationBarIconButton Text="add" IconUri="/Assets/AppBar/appbar.add.rest.png" Click="appBarAdd_Click"/>
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
+</phone:PhoneApplicationPage>
