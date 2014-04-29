@@ -14,6 +14,7 @@ using Microsoft.Phone.Shell;
 using Microsoft.Phone.Tasks;
 using System.Windows.Media.Imaging;
 using System.IO;
+using System.Windows.Navigation;
 
 namespace Galleria
 {
@@ -27,12 +28,103 @@ namespace Galleria
             // Set the data context of the listbox control to the sample data
             DataContext = App.ViewModel;
 
-            this.Loaded += new RoutedEventHandler(MainPage_Loaded);
-
-            gPivot.Visibility = System.Windows.Visibility.Visible;
-            gAddImage.Visibility = System.Windows.Visibility.Collapsed;
             lstCategory.ItemsSource = new List<string> { "Food", "Places", "People" };
             txtTitle.TextChanged += txtTitle_TextChanged;
+        }
+
+        // Load data for the ViewModel Items
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            //hide progress bar
+            progress.Visibility = System.Windows.Visibility.Collapsed;
+        }
+
+        #region Event Handlers
+        //user is signing in
+        private void btnSignIn_Click(object sender, RoutedEventArgs e)
+        {
+            //disable sign in button
+            btnSignIn.IsEnabled = false;
+            progress.Visibility = System.Windows.Visibility.Visible;
+
+            //Logic to Authenticate User will go here
+            //Once user is authenticated, show todo list
+            var result = User.Authenticate(txtEmail.Text, txtPassword.Password);
+            if (string.IsNullOrEmpty(result) == false)
+            {
+                MessageBox.Show("Oops please check your email address and password", "Sign in Failed", MessageBoxButton.OK);
+                progress.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            else
+            {
+                ShowList();
+            }
+
+            //enable sign in
+            btnSignIn.IsEnabled = true;
+        }
+
+        //User is signing up
+        private void btnSignUp_Click(object sender, RoutedEventArgs e)
+        {
+            //disable signup button
+            btnSignUp.IsEnabled = false;
+            //show progress bar
+            progress.Visibility = System.Windows.Visibility.Visible;
+
+            //create a user object and persist locally
+            var split = txtRName.Text.Split(' ');
+            string lastName = string.Empty;
+            if (split.Length > 1) lastName = string.Join(" ", split.Skip(1));
+
+            //save user
+            var user = new User(txtREmail.Text, txtRPassword.Password, split[0], lastName);
+            if (user.Save() == false)
+            {
+                MessageBox.Show("Oops some thing went wrong, check your network connection.", "Sign up failed", MessageBoxButton.OK);
+            }
+            else
+            {
+                MessageBox.Show("Login with your email address and password.", "Sign up successful", MessageBoxButton.OK);
+                txtEmail.Text = txtREmail.Text;
+                txtREmail.Text = txtRName.Text = txtRPassword.Password = string.Empty;
+                lnkSignIn_Click();
+            }
+
+            //hide progress bar
+            progress.Visibility = System.Windows.Visibility.Collapsed;
+            //enable signup button
+            btnSignUp.IsEnabled = true;
+        }
+
+        //user clicked signup link
+        private void lnkSignUp_Click(object sender, RoutedEventArgs e)
+        {
+            gSingIn.Visibility = System.Windows.Visibility.Collapsed;
+            gSingUp.Visibility = System.Windows.Visibility.Visible;
+        }
+
+        //user clicked signin link
+        private void lnkSignIn_Click(object sender = null, RoutedEventArgs e = null)
+        {
+            gSingIn.Visibility = System.Windows.Visibility.Visible;
+            gSingUp.Visibility = System.Windows.Visibility.Collapsed;
+        }
+
+        //user signing out
+        private void menuSignOut_Click(object sender, EventArgs e)
+        {
+            if (Context.User.Logout() == false) MessageBox.Show("Some error occurred, could not sign out.", "Sign out operation failed", MessageBoxButton.OK);
+            else
+            {
+                //clean up
+                if (App.ViewModel.FoodItems != null) App.ViewModel.FoodItems.Clear();
+                if (App.ViewModel.PlaceItems != null) App.ViewModel.PlaceItems.Clear();
+                if (App.ViewModel.PeopleItems != null) App.ViewModel.PeopleItems.Clear();
+                txtEmail.Text = txtPassword.Password = string.Empty;
+                gPivot.Visibility = System.Windows.Visibility.Collapsed;
+                gSingIn.Visibility = System.Windows.Visibility.Visible;
+            }
         }
 
         private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -72,15 +164,6 @@ namespace Galleria
 
             // Reset selected index to -1 (no selection)
             listBox.SelectedIndex = -1;
-        }
-
-        // Load data for the ViewModel Items
-        private void MainPage_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (!App.ViewModel.IsDataLoaded)
-            {
-                App.ViewModel.LoadData();
-            }
         }
 
         private void appBarAdd_Click(object sender, EventArgs e)
@@ -136,6 +219,7 @@ namespace Galleria
             photoChooserTask.Completed += imageTask_Completed;
             photoChooserTask.Show();
         }
+        #endregion
 
         MemoryStream imageStream;
 
@@ -168,6 +252,26 @@ namespace Galleria
             WriteableBitmap wBitmap = new WriteableBitmap(element, null);
             imageStream = new MemoryStream();
             wBitmap.SaveJpeg(imageStream, (int)element.ActualWidth, (int)element.ActualHeight, 0, 100);
+        }
+
+        private void ShowList()
+        {
+            //hide remaining views
+            gSingIn.Visibility = System.Windows.Visibility.Collapsed;
+            gSingUp.Visibility = System.Windows.Visibility.Collapsed;
+
+            //show todo list view
+            gPivot.Visibility = System.Windows.Visibility.Visible;
+
+            //load todo items
+            if (!App.ViewModel.IsDataLoaded)
+            {
+                App.ViewModel.LoadData();
+            }
+
+            //show the application bar
+            ApplicationBar.IsVisible = true;
+            progress.Visibility = System.Windows.Visibility.Collapsed;
         }
     }
 

@@ -58,16 +58,10 @@ namespace Galleria
         {
             this.IsDataLoaded = false;
 
-            this.Author = new User
-            {
-                Email = "someone@example.com",
-                FirstName = "John",
-                LastName = "Doe"
-            };
+            this.Author = new User("someone@example.com", "text", "John", "Doe");
 
             this.IsDataLoaded = true;
         }
-
 
         private bool _isDataLoaded = false;
         /// <summary>

@@ -37,7 +37,83 @@
     </toolkit:TransitionService.NavigationOutTransition>
 
     <Grid x:Name="LayoutRoot" Background="Transparent">
-        <Grid x:Name="gPivot" Visibility="Visible">
+        <ProgressBar x:Name="progress" VerticalAlignment="Top" Margin="0 10 0 0" Visibility="{Binding IsDataLoaded, Converter={StaticResource ProgressBarVisibilityConverter}}" IsIndeterminate="True" Grid.Row="0" />
+        <Grid x:Name="gSingIn" Grid.Row="1" Margin="12,20,0,28" Visibility="Visible">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" >
+                <TextBlock Text="sign in" Margin="9,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
+            </StackPanel>
+            <StackPanel Grid.Row="1"  Margin="0,32,0,0">
+                <TextBlock Text="Email" Margin="10,0,0,-6" Style="{StaticResource PhoneTextNormalStyle}"/>
+                <TextBox x:Name="txtEmail" InputScope="EmailNameOrAddress"/>
+            </StackPanel>
+            <StackPanel Grid.Row="2"  Margin="0,2,0,0">
+                <TextBlock Text="Password" Margin="10,0,0,-6" Style="{StaticResource PhoneTextNormalStyle}"/>
+                <PasswordBox  x:Name="txtPassword" />
+            </StackPanel>
+            <StackPanel Grid.Row="3"  Margin="0,15,0,0" HorizontalAlignment="Left">
+                <Button x:Name="btnSignIn" Content="Sign In" Width="180" Click="btnSignIn_Click"></Button>
+            </StackPanel>
+            <StackPanel Grid.Row="4"  Margin="0,35,0,0" VerticalAlignment="Bottom">
+                <TextBlock Text="Don't have an account?" Style="{StaticResource PhoneTextNormalStyle}" HorizontalAlignment="Left"/>
+            </StackPanel>
+            <StackPanel Grid.Row="4"  Margin="0,35,0,0" VerticalAlignment="Bottom">
+                <HyperlinkButton x:Name="lnkSignUp" Click="lnkSignUp_Click" Margin="214,0,0,0" Content="Sign Up" HorizontalAlignment="Left">
+                    <HyperlinkButton.Foreground>
+                        <SolidColorBrush Color="{StaticResource PhoneAccentColor}"/>
+                    </HyperlinkButton.Foreground>
+                </HyperlinkButton>
+            </StackPanel>
+        </Grid>
+        <Grid x:Name="gSingUp" Grid.Row="1" Margin="12,20,0,28" Visibility="Collapsed" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" >
+                <TextBlock Text="sign up" Margin="9,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
+            </StackPanel>
+            <StackPanel Grid.Row="1"  Margin="0,32,0,0">
+                <TextBlock Text="Name" Margin="10,0,0,-6" Style="{StaticResource PhoneTextNormalStyle}"/>
+                <TextBox x:Name="txtRName" />
+            </StackPanel>
+            <StackPanel Grid.Row="2"  Margin="0,2,0,0">
+                <TextBlock Text="Email" Margin="10,0,0,-6" Style="{StaticResource PhoneTextNormalStyle}"/>
+                <TextBox x:Name="txtREmail" InputScope="EmailNameOrAddress"/>
+            </StackPanel>
+            <StackPanel Grid.Row="3"  Margin="0,2,0,0">
+                <TextBlock Text="Password" Margin="10,0,0,-6" Style="{StaticResource PhoneTextNormalStyle}"/>
+                <PasswordBox x:Name="txtRPassword" />
+            </StackPanel>
+            <StackPanel Grid.Row="4"  Margin="0,2,0,0">
+                <CheckBox x:Name="chkAge" Content="I'm above 18" FontSize="20" />
+            </StackPanel>
+            <StackPanel Grid.Row="5"  Margin="0,15,0,0" HorizontalAlignment="Left">
+                <Button x:Name="btnSignUp" Content="Sign Up" Width="180" Click="btnSignUp_Click"></Button>
+            </StackPanel>
+            <StackPanel Grid.Row="6"  Margin="0,35,0,0" VerticalAlignment="Bottom">
+                <TextBlock Text="Already have an account?" Style="{StaticResource PhoneTextNormalStyle}" HorizontalAlignment="Left"/>
+            </StackPanel>
+            <StackPanel Grid.Row="6"  Margin="0,35,0,0" VerticalAlignment="Bottom">
+                <HyperlinkButton x:Name="lnkSignIn" Click="lnkSignIn_Click" Margin="235,0,0,0" Content="Sign In" HorizontalAlignment="Left">
+                    <HyperlinkButton.Foreground>
+                        <SolidColorBrush Color="{StaticResource PhoneAccentColor}"/>
+                    </HyperlinkButton.Foreground>
+                </HyperlinkButton>
+            </StackPanel>
+        </Grid>
+        <Grid x:Name="gPivot" Visibility="Collapsed">
             <controls:Pivot Title="GALLERIA" SelectionChanged="Pivot_SelectionChanged">
 
                 <!-- All images by Jeff Wilcox, used with permission -->
