@@ -5,6 +5,7 @@
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="800"
@@ -14,44 +15,42 @@
     SupportedOrientations="Portrait"  Orientation="Portrait"
     shell:SystemTray.IsVisible="False">
 
+    <toolkit:GestureService.GestureListener>
+        <toolkit:GestureListener Flick="GestureListener_Flick" />
+    </toolkit:GestureService.GestureListener>
     <!--Data context is set to sample data above and first item in sample data collection below and LayoutRoot contains the root grid where all other page content is placed-->
     <Grid x:Name="LayoutRoot">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <!--TitlePanel contains the name of the application and page title-->
-        <StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="12,17,0,0">
-            <TextBlock x:Name="PageTitle" Text="MY MOVIEAPP" Style="{StaticResource PhoneTextNormalStyle}"/>
-        </StackPanel>
-        <controls:Panorama Grid.Row="1">
-            <controls:Panorama.Title>
-                <TextBlock Text="{Binding ImageDetails.Title}" Style="{StaticResource PhoneTextTitle1Style}" Margin="7, 76, 0,0"></TextBlock>
-            </controls:Panorama.Title>
-
-            <!--Panorama item one-->
-            <controls:PanoramaItem>
-                <Grid Margin="12,-15,12,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <ProgressBar Grid.Row="2" Margin="0, 20, 0,0" IsIndeterminate="True" VerticalAlignment="Top" HorizontalAlignment="Stretch" Visibility="{Binding IsDataLoaded, Converter={StaticResource ProgressBarVisibilityConverter}}"></ProgressBar>
-                    <Image Source="{Binding ImageDetails.Url}" HorizontalAlignment="Center" VerticalAlignment="Top" Stretch="Uniform"  Margin="0 0 0 10" />
-                </Grid>
-            </controls:PanoramaItem>
-
-            <!--Panorama item two-->
-            <controls:PanoramaItem>
-                <Grid Margin="12,-25,12,0">
+        <ScrollViewer>
+            <Grid Margin="12,28,12,0">
+                <Grid x:Name="gDetails" Visibility="Visible">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
+                    <ProgressBar Grid.Row="1" Margin="0, 20, 0,0" IsIndeterminate="True" VerticalAlignment="Top" HorizontalAlignment="Stretch" Visibility="{Binding IsDataLoaded, Converter={StaticResource ProgressBarVisibilityConverter}}"></ProgressBar>
+                    <Image Tap="Image_Tap" Source="{Binding ImageDetails.Url}" HorizontalAlignment="Center" VerticalAlignment="Top" Stretch="Uniform"  Margin="0 0 0 10" />
 
-                    <ProgressBar Grid.Row="1" Margin="0, 20, 0,0" x:Name="pbar" IsIndeterminate="True" VerticalAlignment="Top" HorizontalAlignment="Stretch" Visibility="{Binding IsDataLoaded, Converter={StaticResource ProgressBarVisibilityConverter}}"></ProgressBar>
+                    <Grid Grid.Row="1" Visibility="{Binding IsDataLoaded, Converter={StaticResource BoolVisibilityConverter}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock x:Name="lblTitle" Text="{Binding ImageDetails.EscaptedTitle}" Grid.Row="0" HorizontalAlignment="Left" Margin="0, 5, 0, 0" Style="{StaticResource PhoneTextLargeStyle}"/>
+                        <TextBlock x:Name="lblMessage" Text="{Binding ImageDetails.Message}" Grid.Row="1" HorizontalAlignment="Left" Margin="0, 0, 0, 0" Style="{StaticResource PhoneTextNormalStyle}"/>
 
-                    <Grid Grid.Row="2" Visibility="{Binding IsDataLoaded, Converter={StaticResource BoolVisibilityConverter}}">
+                        <TextBlock Text="Uploaded by" Grid.Row="2" Style="{StaticResource PhoneTextSmallStyle}" Margin="0,20,0,0" />
+                        <TextBlock Text="{Binding Author.Name}" Grid.Row="2" HorizontalAlignment="Left" Margin="112, 20, 0, 0" Style="{StaticResource PhoneTextSmallStyle}"/>
+
+                        <TextBlock Text="Category" Grid.Row="3" Style="{StaticResource PhoneTextSmallStyle}" Margin="0,0,0,0" />
+                        <TextBlock Text="{Binding ImageDetails.Category}" Grid.Row="3" HorizontalAlignment="Left" Margin="82, 0, 0, 0" Style="{StaticResource PhoneTextSmallStyle}"/>
+                    </Grid>
+                </Grid>
+
+                <Grid x:Name="gEdit" Visibility="Collapsed">
+                    <ProgressBar x:Name="progress" Margin="0, 20, 0,0" IsIndeterminate="True" VerticalAlignment="Top" HorizontalAlignment="Stretch"></ProgressBar>
+                    <Grid Visibility="{Binding IsDataLoaded, Converter={StaticResource BoolVisibilityConverter}}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -60,24 +59,22 @@
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0" Margin="0, 10, 0, 25">
                             <TextBlock Text="Title" Margin="0, 0, 0, -4" TextWrapping="Wrap" Style="{StaticResource PhoneTextSmallStyle}"/>
-                            <TextBlock Text="{Binding ImageDetails.Title}" HorizontalAlignment="Left" Margin="0, 2, 0, 0" Style="{StaticResource PhoneTextLargeStyle}"/>
+                            <TextBox x:Name="txtTitle" HorizontalAlignment="Stretch" Margin="-10, 2, 0, 0" InputScope="Chat" />
                         </StackPanel>
                         <StackPanel Grid.Row="1"  Margin="0, 0, 0, 25">
                             <TextBlock Text="Message" Margin="0, 0, 0, -4" TextWrapping="Wrap" Style="{StaticResource PhoneTextSmallStyle}"/>
-                            <TextBlock Text="{Binding ImageDetails.Message}" HorizontalAlignment="Left" Margin="0, 2, 0, 0" Style="{StaticResource PhoneTextLargeStyle}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Row="2" Margin="0, 0, 0, 25">
-                            <TextBlock Text="Category" Margin="0, 0, 0, -4" TextWrapping="Wrap" Style="{StaticResource PhoneTextSmallStyle}"/>
-                            <TextBlock Text="{Binding ImageDetails.Category}" HorizontalAlignment="Left" Margin="0, 2, 0, 0" Style="{StaticResource PhoneTextLargeStyle}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Row="3" Margin="0, 0, 0, 20">
-                            <TextBlock Text="Author" Margin="0, 0, 0, -4" TextWrapping="Wrap" Style="{StaticResource PhoneTextSmallStyle}"/>
-                            <TextBlock Text="{Binding Author.Name}" HorizontalAlignment="Left" Margin="0, 2, 0, 0" Style="{StaticResource PhoneTextLargeStyle}"/>
+                            <TextBox x:Name="txtMessage"  HorizontalAlignment="Stretch" Margin="-10, 2, 0, 0" InputScope="Chat"/>
                         </StackPanel>
                     </Grid>
                 </Grid>
-            </controls:PanoramaItem>
-        </controls:Panorama>
+            </Grid>
+        </ScrollViewer>
     </Grid>
- 
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar IsVisible="True">
+            <shell:ApplicationBarIconButton Text="edit" IconUri="/Assets/AppBar/appbar.edit.rest.png" Click="appBarEdit_Click"/>
+            <shell:ApplicationBarIconButton Text="delete" IconUri="/Assets/AppBar/appbar.delete.rest.png" Click="appBarDelete_Click"/>
+
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
 </phone:PhoneApplicationPage>

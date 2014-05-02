@@ -86,7 +86,7 @@ namespace Galleria
             this.FoodItems.Add(new ImageDetails() { Id = "2", Category = "food", Url = "/Images/Fruits.jpg", Title = "Fruits", Message = "Awesome stuff." });
             this.FoodItems.Add(new ImageDetails() { Id = "3", Category = "food", Url = "/Images/Pretzel.jpg", Title = "Pretzel", Message = "Awesome stuff." });
             this.FoodItems.Add(new ImageDetails() { Id = "4", Category = "food", Url = "/Images/Shrimp.jpg", Title = "Shrimp", Message = "Awesome stuff." });
-            this.FoodItems.Add(new ImageDetails() { Id = "5", Category = "food", Url = "/Images/SteakSandwich.jpg", Title = "SteakSandwich", Message = "Awesome stuff." });
+            this.FoodItems.Add(new ImageDetails() { Id = "5", Category = "food", Url = "/Images/SteakSandwich.jpg", Title = "Steak\r\nSandwich", Message = "Awesome stuff." });
             this.FoodItems.Add(new ImageDetails() { Id = "6", Category = "food", Url = "/Images/Beignets.jpg", Title = "Beignets", Message = "Awesome stuff." });
             this.PlaceItems.Add(new ImageDetails() { Id = "7", Category = "place", Url = "/Images/Mürren.jpg", Title = "Mürren", Message = "Must visit" });
             this.PlaceItems.Add(new ImageDetails() { Id = "8", Category = "place", Url = "/Images/Seattle.jpg", Title = "Seattle", Message = "Must visit" });
@@ -114,6 +114,37 @@ namespace Galleria
             {
                 handler(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        public void AddItem(ImageDetails item)
+        {
+            //depending upon category, update ViewModel
+            switch (item.Category)
+            {
+                case "place":
+                    App.ViewModel.PlaceItems.Add(item);
+                    App.ViewModel.NoPlaceItems = false;
+                    break;
+                case "people":
+                    App.ViewModel.PeopleItems.Add(item);
+                    App.ViewModel.NoPeopleItems = false;
+                    break;
+                default:
+                    App.ViewModel.FoodItems.Add(item);
+                    App.ViewModel.NoFoodItems = false;
+                    break;
+            }
+        }
+
+        public void RemoveItem(ImageDetails item)
+        {
+            App.ViewModel.FoodItems.Remove(item);
+            App.ViewModel.PeopleItems.Remove(item);
+            App.ViewModel.PlaceItems.Remove(item);
+
+            this.NoFoodItems = this.FoodItems.Count == 0;
+            this.NoPlaceItems = this.PlaceItems.Count == 0;
+            this.NoPeopleItems = this.PeopleItems.Count == 0;
         }
     }
 }

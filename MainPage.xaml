@@ -145,7 +145,7 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                        <TextBlock Grid.Row="0" Margin="5,0,0,0" Visibility="{Binding NoFoodItems, Converter={StaticResource BoolVisibilityConverter}}" Text="No images found for Food Category." Style="{StaticResource PhoneTextSmallStyle}" />
+                        <TextBlock Grid.Row="0" Margin="15,0,0,0" Visibility="{Binding NoFoodItems, Converter={StaticResource BoolVisibilityConverter}}" Text="No images found for Food Category." Style="{StaticResource PhoneTextSmallStyle}" />
                     </Grid>
                 </controls:PivotItem>
 
@@ -177,7 +177,7 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                        <TextBlock Grid.Row="0" Margin="5,0,0,0" Visibility="{Binding NoPlaceItems, Converter={StaticResource BoolVisibilityConverter}}" Text="No images found for Places Category" Style="{StaticResource PhoneTextSmallStyle}" />
+                        <TextBlock Grid.Row="0" Margin="15,0,0,0" Visibility="{Binding NoPlaceItems, Converter={StaticResource BoolVisibilityConverter}}" Text="No images found for Places Category" Style="{StaticResource PhoneTextSmallStyle}" />
                     </Grid>
                 </controls:PivotItem>
 
@@ -209,17 +209,13 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                        <TextBlock Grid.Row="0" Margin="5,0,0,0" Visibility="{Binding NoPeopleItems, Converter={StaticResource BoolVisibilityConverter}}" Text="No images found for People Category" Style="{StaticResource PhoneTextSmallStyle}" />
+                        <TextBlock Grid.Row="0" Margin="15,0,0,0" Visibility="{Binding NoPeopleItems, Converter={StaticResource BoolVisibilityConverter}}" Text="No images found for People Category" Style="{StaticResource PhoneTextSmallStyle}" />
                     </Grid>
                 </controls:PivotItem>
             </controls:Pivot>
         </Grid>
         <Grid x:Name="gAddImage" Visibility="Collapsed">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
@@ -230,52 +226,72 @@
                 <TextBlock x:Name="ListTitle" Text="upload image" Margin="9,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
             </StackPanel>
 
-            <StackPanel Grid.Row="1"  Margin="14,0,12,15">
-                <TextBlock Text="Title" Margin="10,0,0,-4" Style="{StaticResource PhoneTextSmallStyle}"/>
-                <TextBox x:Name="txtTitle" />
-            </StackPanel>
+            <ScrollViewer Grid.Row="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0"  Margin="14,0,12,5">
+                        <TextBlock Text="Title" Margin="10,0,0,-4" Style="{StaticResource PhoneTextSmallStyle}"/>
+                        <TextBox x:Name="txtTitle" InputScope="Chat"/>
+                    </StackPanel>
 
-            <StackPanel Grid.Row="2"  Margin="14,0,12,15">
-                <TextBlock Text="Message (optional)" Margin="10,0,0,-4" Style="{StaticResource PhoneTextSmallStyle}"/>
-                <TextBox x:Name="txtMessage"/>
-            </StackPanel>
+                    <StackPanel Grid.Row="1"  Margin="14,0,12,5">
+                        <TextBlock Text="Message (optional)" Margin="10,0,0,-4" Style="{StaticResource PhoneTextSmallStyle}"/>
+                        <TextBox x:Name="txtMessage" InputScope="Chat"/>
+                    </StackPanel>
 
-            <StackPanel Grid.Row="3"  Margin="14,0,12,15">
-                <toolkit:ListPicker x:Name="lstCategory" Grid.Row="0"  Margin="15,0,15,15">
-                    <toolkit:ListPicker.HeaderTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="Category"/>
-                        </DataTemplate>
-                    </toolkit:ListPicker.HeaderTemplate>
-                </toolkit:ListPicker>
-            </StackPanel>
-            <StackPanel Grid.Row="4"  Margin="22,0,12,15">
-                <TextBlock Text="Choose Image" Margin="10,0,0,-6" Style="{StaticResource PhoneTextSmallStyle}"/>
-            </StackPanel>
-            <Grid Grid.Row="5" Margin="32,0" HorizontalAlignment="Left">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.5*" />
-                    <ColumnDefinition Width="20" />
-                    <ColumnDefinition Width="0.5*"/>
-                </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Row="2"  Margin="14,0,12,5">
+                        <toolkit:ListPicker x:Name="lstCategory" Grid.Row="0"  Margin="15,0,15,15">
+                            <toolkit:ListPicker.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="Category"/>
+                                </DataTemplate>
+                            </toolkit:ListPicker.HeaderTemplate>
+                        </toolkit:ListPicker>
+                    </StackPanel>
 
-                <Rectangle Grid.Row="0" Tap="Camera_Tap" Grid.Column="0" Fill="{StaticResource PhoneAccentBrush}" Width="185" Height="185" />
-                <Image Source="/Assets/Media/HumanAddCamera.png" Tap="Camera_Tap" Width="100" Height="100" Grid.Row="0" Grid.Column="0"/>
-                <TextBlock Text="take a photo" Tap="Camera_Tap" Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" Margin="18,4,0,4" />
+                    <StackPanel Grid.Row="3"  Margin="19,-10,12,10">
+                        <CheckBox x:Name="chkPublic" Content="Make it Public" IsChecked="True"/>
+                    </StackPanel>
 
-                <Rectangle Grid.Row="0" Tap="Media_Tap" Grid.Column="2" Fill="{StaticResource PhoneAccentBrush}" Width="185" Height="185"/>
-                <Image Source="/Assets/Media/HumanAdd.png" Tap="Media_Tap" Width="100" Height="100" Grid.Row="0" Grid.Column="2"/>
-                <TextBlock Text="upload from library" Tap="Media_Tap" Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom" Margin="12,4,10,4" />
-            </Grid>
+                    <StackPanel Grid.Row="4"  Margin="22,0,12,15">
+                        <TextBlock Text="Choose Image" Margin="10,0,0,-6" Style="{StaticResource PhoneTextSmallStyle}"/>
+                    </StackPanel>
+                    <Grid Grid.Row="5" Margin="32,0,32, 20" HorizontalAlignment="Left">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.5*" />
+                            <ColumnDefinition Width="20" />
+                            <ColumnDefinition Width="0.5*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Rectangle Grid.Row="0" Tap="Camera_Tap" Grid.Column="0" Fill="{StaticResource PhoneAccentBrush}" Width="185" Height="185" />
+                        <Image Source="/Assets/Media/HumanAddCamera.png" Tap="Camera_Tap" Width="100" Height="100" Grid.Row="0" Grid.Column="0"/>
+                        <TextBlock Text="take a photo" Tap="Camera_Tap" Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" Margin="18,4,0,4" />
+
+                        <Rectangle Grid.Row="0" Tap="Media_Tap" Grid.Column="2" Fill="{StaticResource PhoneAccentBrush}" Width="185" Height="185"/>
+                        <Image Source="/Assets/Media/HumanAdd.png" Tap="Media_Tap" Width="100" Height="100" Grid.Row="0" Grid.Column="2"/>
+                        <TextBlock Text="upload from library" Tap="Media_Tap" Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom" Margin="12,4,10,4" />
+                    </Grid>
+                </Grid>
+            </ScrollViewer>
         </Grid>
     </Grid>
-    
+
     <phone:PhoneApplicationPage.ApplicationBar>
-        <shell:ApplicationBar>
+        <shell:ApplicationBar IsVisible="False" IsMenuEnabled="True">
             <shell:ApplicationBarIconButton Text="add" IconUri="/Assets/AppBar/appbar.add.rest.png" Click="appBarAdd_Click"/>
+            <shell:ApplicationBar.MenuItems>
+                <shell:ApplicationBarMenuItem Text="logout" Click="menuSignOut_Click"/>
+            </shell:ApplicationBar.MenuItems>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
 </phone:PhoneApplicationPage>

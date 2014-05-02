@@ -38,19 +38,50 @@ namespace Galleria
             get { return _title; }
             set
             {
-                _title = value;
+                _title = value.Trim().Replace(" ", "\r\n");
                 NotifyPropertyChanged("Title");
+                NotifyPropertyChanged("EscaptedTitle");
             }
         }
+
+        public string EscaptedTitle { get { return this.Title.Replace("\r\n", " "); } }
 
         private string _message;
         public string Message
         {
-            get { return _message; }
+            get
+            {
+                ShowMessage = !string.IsNullOrEmpty(_message);
+                return _message;
+            }
             set
             {
                 _message = value;
+                ShowMessage = !string.IsNullOrEmpty(value);
                 NotifyPropertyChanged("Comment");
+            }
+        }
+
+        private bool _noMessage;
+        public bool ShowMessage
+        {
+            get { return _noMessage; }
+            set
+            {
+                _noMessage = value;
+                NotifyPropertyChanged("ShowMessage");
+            }
+        }
+
+
+        private bool _isPublic;
+        public bool IsPublic
+        {
+            get { return _isPublic; }
+            set
+            {
+                _isPublic = value;
+                NotifyPropertyChanged("IsPublic");
             }
         }
 
@@ -63,5 +94,19 @@ namespace Galleria
                 handler(this, new PropertyChangedEventArgs(propertyName));
             }
         }
+
+        public bool IsOwner { get; set; }
+
+        public bool Save()
+        {
+            return true;
+        }
+
+        public bool Delete()
+        {
+            // delete item from store
+            return true;
+        }
+
     }
 }

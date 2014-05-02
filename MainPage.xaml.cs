@@ -25,10 +25,18 @@ namespace Galleria
         {
             InitializeComponent();
 
+            gSingUp.Visibility = System.Windows.Visibility.Collapsed;
+            gPivot.Visibility = System.Windows.Visibility.Collapsed;
+            gAddImage.Visibility = System.Windows.Visibility.Collapsed;
+            gSingIn.Visibility = System.Windows.Visibility.Visible;
+
             // Set the data context of the listbox control to the sample data
             DataContext = App.ViewModel;
 
-            lstCategory.ItemsSource = new List<string> { "Food", "Places", "People" };
+            txtEmail.Text = "a@a.com";
+            txtPassword.Password = "aa";
+
+            lstCategory.ItemsSource = new List<string> { "Food", "Place", "People" };
             txtTitle.TextChanged += txtTitle_TextChanged;
         }
 
@@ -171,7 +179,7 @@ namespace Galleria
             gPivot.Visibility = System.Windows.Visibility.Collapsed;
             gAddImage.Visibility = System.Windows.Visibility.Visible;
 
-            //txtListName.Focus();
+            txtTitle.Focus();
             ApplicationBar.Buttons.RemoveAt(0);
             ApplicationBarIconButton appBarSaveButton = new ApplicationBarIconButton(new Uri("/Assets/AppBar/appbar.save.rest.png", UriKind.Relative));
             appBarSaveButton.Text = "save";
@@ -185,8 +193,10 @@ namespace Galleria
             ApplicationBar.Buttons.Add(appBarCancelButton);
         }
 
-        private void appBarCancel_Click(object sender, EventArgs e)
+        private void appBarCancel_Click(object sender = null, EventArgs e = null)
         {
+            txtTitle.Text = "";
+            txtMessage.Text = "";
             gPivot.Visibility = System.Windows.Visibility.Visible;
             gAddImage.Visibility = System.Windows.Visibility.Collapsed;
             lock (App.ViewModel)
@@ -202,7 +212,10 @@ namespace Galleria
 
         private void appBarSave_Click(object sender, EventArgs e)
         {
-
+            (ApplicationBar.Buttons[0] as ApplicationBarIconButton).IsEnabled = false;
+            (ApplicationBar.Buttons[1] as ApplicationBarIconButton).IsEnabled = false;
+            progress.Visibility = System.Windows.Visibility.Visible;
+            UploadFile();
         }
 
         private void Camera_Tap(object sender, System.Windows.Input.GestureEventArgs e)
@@ -219,39 +232,70 @@ namespace Galleria
             photoChooserTask.Completed += imageTask_Completed;
             photoChooserTask.Show();
         }
-        #endregion
-
-        MemoryStream imageStream;
-
-        private void imageTask_Completed(object sender, PhotoResult e)
-        {
-            if (e.TaskResult != TaskResult.OK) return;
-            BitmapImage image = new BitmapImage();
-            image.SetSource(e.ChosenPhoto);
-            Image imageC = new Image();
-            imageC.Source = image;
-            WriteBitmap(imageC);
-
-            imageStream.Seek(0, SeekOrigin.Begin);
-            EnableSaveButton();
-        }
 
         void txtTitle_TextChanged(object sender, TextChangedEventArgs e)
         {
             EnableSaveButton();
         }
 
-        private void EnableSaveButton()
+        private void imageTask_Completed(object sender, PhotoResult e)
         {
-            if (txtTitle.Text.Trim() == string.Empty || imageStream == null) return;
-            (ApplicationBar.Buttons[0] as ApplicationBarIconButton).IsEnabled = true;
+            if (e.TaskResult != TaskResult.OK) return;
+            BitmapImage image = new BitmapImage();
+            stream = ImageUtil.HandleOrientation(e.ChosenPhoto, e.OriginalFileName);
+            stream = ImageUtil.Compress(stream);
+            EnableSaveButton();
+        }
+        #endregion
+
+        Stream stream;
+
+        private void UploadFile()
+        {
+            try
+            {
+                //upload file here and store it's url in image details
+                var publicUrl = "";
+
+                SaveImageDetails(publicUrl);
+            }
+            catch
+            {
+                MessageBox.Show("Failed to upload the image. Please try again.");
+                (ApplicationBar.Buttons[1] as ApplicationBarIconButton).IsEnabled = false;
+                progress.Visibility = System.Windows.Visibility.Collapsed;
+            }
         }
 
-        private void WriteBitmap(FrameworkElement element)
+        private void SaveImageDetails(string url)
         {
-            WriteableBitmap wBitmap = new WriteableBitmap(element, null);
-            imageStream = new MemoryStream();
-            wBitmap.SaveJpeg(imageStream, (int)element.ActualWidth, (int)element.ActualHeight, 0, 100);
+            var imageDetails = new ImageDetails();
+            imageDetails.Title = txtTitle.Text;
+            imageDetails.Message = txtMessage.Text;
+            imageDetails.Category = lstCategory.SelectedItem.ToString().ToLower();
+            imageDetails.Url = url;
+            imageDetails.IsPublic = chkPublic.IsChecked == true;
+
+            if (imageDetails.Save() == false)
+            {
+                MessageBox.Show("Failed to upload the image. Please try again.");
+                (ApplicationBar.Buttons[1] as ApplicationBarIconButton).IsEnabled = false;
+                progress.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            else
+            {
+                //add new item to the list
+                App.ViewModel.AddItem(imageDetails);
+
+                progress.Visibility = System.Windows.Visibility.Collapsed;
+                appBarCancel_Click();
+            }
+        }
+
+        private void EnableSaveButton()
+        {
+            if (txtTitle.Text.Trim() == string.Empty || stream == null) return;
+            (ApplicationBar.Buttons[0] as ApplicationBarIconButton).IsEnabled = true;
         }
 
         private void ShowList()
