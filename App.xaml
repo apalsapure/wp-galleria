@@ -10,6 +10,8 @@
     <Application.Resources>
         <converter:ProgressBarVisibilityConverter  x:Key="ProgressBarVisibilityConverter"/>
         <converter:BoolVisibilityConverter x:Key="BoolVisibilityConverter" />
+        <converter:CacheImageFileConverter x:Key="ImageFilePathConverter" />
+        
         <Style x:Key="ListBoxItemStyle" TargetType="ListBoxItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>

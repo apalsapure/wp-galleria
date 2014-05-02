@@ -3,6 +3,8 @@ Bin
 bin
 obj
 sql
+packages
+packages.config
 1. Library/Gossamer/*.config
 1. Library/Gossamer/*.manifest
 

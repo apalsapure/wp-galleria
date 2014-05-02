@@ -81,6 +81,12 @@ namespace Galleria
         // This code will not execute when the application is reactivated
         private void Application_Launching(object sender, LaunchingEventArgs e)
         {
+            //Initializing Appacitive .Net SDK
+            Appacitive.Sdk.App.Initialize(Appacitive.Sdk.Platforms.WP7, "57653131622875838", "7iJVWEdcNE+0Au1SpMUFvw==", Appacitive.Sdk.Environment.Sandbox);
+
+            //Map your model object to appacitive type
+            Appacitive.Sdk.App.Types.MapObjectType<User>("user");
+            Appacitive.Sdk.App.Types.MapObjectType<ImageDetails>("image");
         }
 
         // Code to execute when the application is activated (brought to foreground)
@@ -120,6 +126,7 @@ namespace Galleria
         // Code to execute on Unhandled Exceptions
         private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
         {
+            MessageBox.Show(e.ExceptionObject.Message);
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 // An unhandled exception has occurred; break into the debugger

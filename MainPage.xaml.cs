@@ -15,33 +15,55 @@ using Microsoft.Phone.Tasks;
 using System.Windows.Media.Imaging;
 using System.IO;
 using System.Windows.Navigation;
+using System.Threading.Tasks;
 
 namespace Galleria
 {
     public partial class MainPage : PhoneApplicationPage
     {
+        private bool _isFirstTime = true;
         // Constructor
         public MainPage()
         {
             InitializeComponent();
 
+            gSingUp.Visibility = System.Windows.Visibility.Collapsed;
+            gPivot.Visibility = System.Windows.Visibility.Collapsed;
+            gAddImage.Visibility = System.Windows.Visibility.Collapsed;
+            gSingIn.Visibility = System.Windows.Visibility.Collapsed;
+
             // Set the data context of the listbox control to the sample data
             DataContext = App.ViewModel;
 
-            lstCategory.ItemsSource = new List<string> { "Food", "Places", "People" };
+            txtEmail.Text = "a@a.com";
+            txtPassword.Password = "aa";
+
+            lstCategory.ItemsSource = new List<string> { "Food", "Place", "People" };
             txtTitle.TextChanged += txtTitle_TextChanged;
         }
 
         // Load data for the ViewModel Items
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
+            if (_isFirstTime)
+            {
+                _isFirstTime = false;
+                progress.Visibility = System.Windows.Visibility.Visible;
+                if (await User.IsLoggedIn())
+                {
+                    gPivot.Visibility = System.Windows.Visibility.Visible;
+                    ShowList();
+                    return;
+                }
+                gSingIn.Visibility = System.Windows.Visibility.Visible;
+            }
             //hide progress bar
             progress.Visibility = System.Windows.Visibility.Collapsed;
         }
 
         #region Event Handlers
         //user is signing in
-        private void btnSignIn_Click(object sender, RoutedEventArgs e)
+        private async void btnSignIn_Click(object sender, RoutedEventArgs e)
         {
             //disable sign in button
             btnSignIn.IsEnabled = false;
@@ -49,7 +71,7 @@ namespace Galleria
 
             //Logic to Authenticate User will go here
             //Once user is authenticated, show todo list
-            var result = User.Authenticate(txtEmail.Text, txtPassword.Password);
+            var result = await User.Authenticate(txtEmail.Text, txtPassword.Password);
             if (string.IsNullOrEmpty(result) == false)
             {
                 MessageBox.Show("Oops please check your email address and password", "Sign in Failed", MessageBoxButton.OK);
@@ -65,7 +87,7 @@ namespace Galleria
         }
 
         //User is signing up
-        private void btnSignUp_Click(object sender, RoutedEventArgs e)
+        private async void btnSignUp_Click(object sender, RoutedEventArgs e)
         {
             //disable signup button
             btnSignUp.IsEnabled = false;
@@ -79,7 +101,7 @@ namespace Galleria
 
             //save user
             var user = new User(txtREmail.Text, txtRPassword.Password, split[0], lastName);
-            if (user.Save() == false)
+            if (await user.Save() == false)
             {
                 MessageBox.Show("Oops some thing went wrong, check your network connection.", "Sign up failed", MessageBoxButton.OK);
             }
@@ -112,9 +134,10 @@ namespace Galleria
         }
 
         //user signing out
-        private void menuSignOut_Click(object sender, EventArgs e)
+        private async void menuSignOut_Click(object sender, EventArgs e)
         {
-            if (Context.User.Logout() == false) MessageBox.Show("Some error occurred, could not sign out.", "Sign out operation failed", MessageBoxButton.OK);
+            progress.Visibility = System.Windows.Visibility.Visible;
+            if (await Context.User.Logout() == false) MessageBox.Show("Some error occurred, could not sign out.", "Sign out operation failed", MessageBoxButton.OK);
             else
             {
                 //clean up
@@ -125,6 +148,7 @@ namespace Galleria
                 gPivot.Visibility = System.Windows.Visibility.Collapsed;
                 gSingIn.Visibility = System.Windows.Visibility.Visible;
             }
+            progress.Visibility = System.Windows.Visibility.Collapsed;
         }
 
         private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -171,7 +195,7 @@ namespace Galleria
             gPivot.Visibility = System.Windows.Visibility.Collapsed;
             gAddImage.Visibility = System.Windows.Visibility.Visible;
 
-            //txtListName.Focus();
+            txtTitle.Focus();
             ApplicationBar.Buttons.RemoveAt(0);
             ApplicationBarIconButton appBarSaveButton = new ApplicationBarIconButton(new Uri("/Assets/AppBar/appbar.save.rest.png", UriKind.Relative));
             appBarSaveButton.Text = "save";
@@ -185,8 +209,10 @@ namespace Galleria
             ApplicationBar.Buttons.Add(appBarCancelButton);
         }
 
-        private void appBarCancel_Click(object sender, EventArgs e)
+        private void appBarCancel_Click(object sender = null, EventArgs e = null)
         {
+            txtTitle.Text = "";
+            txtMessage.Text = "";
             gPivot.Visibility = System.Windows.Visibility.Visible;
             gAddImage.Visibility = System.Windows.Visibility.Collapsed;
             lock (App.ViewModel)
@@ -200,9 +226,12 @@ namespace Galleria
             ApplicationBar.Buttons.Add(appBarAddButton);
         }
 
-        private void appBarSave_Click(object sender, EventArgs e)
+        private async void appBarSave_Click(object sender, EventArgs e)
         {
-
+            (ApplicationBar.Buttons[0] as ApplicationBarIconButton).IsEnabled = false;
+            (ApplicationBar.Buttons[1] as ApplicationBarIconButton).IsEnabled = false;
+            progress.Visibility = System.Windows.Visibility.Visible;
+            await UploadFile();
         }
 
         private void Camera_Tap(object sender, System.Windows.Input.GestureEventArgs e)
@@ -219,39 +248,105 @@ namespace Galleria
             photoChooserTask.Completed += imageTask_Completed;
             photoChooserTask.Show();
         }
-        #endregion
-
-        MemoryStream imageStream;
-
-        private void imageTask_Completed(object sender, PhotoResult e)
-        {
-            if (e.TaskResult != TaskResult.OK) return;
-            BitmapImage image = new BitmapImage();
-            image.SetSource(e.ChosenPhoto);
-            Image imageC = new Image();
-            imageC.Source = image;
-            WriteBitmap(imageC);
-
-            imageStream.Seek(0, SeekOrigin.Begin);
-            EnableSaveButton();
-        }
 
         void txtTitle_TextChanged(object sender, TextChangedEventArgs e)
         {
             EnableSaveButton();
         }
 
-        private void EnableSaveButton()
+        private void imageTask_Completed(object sender, PhotoResult e)
         {
-            if (txtTitle.Text.Trim() == string.Empty || imageStream == null) return;
-            (ApplicationBar.Buttons[0] as ApplicationBarIconButton).IsEnabled = true;
+            if (e.TaskResult != TaskResult.OK) return;
+            BitmapImage image = new BitmapImage();
+            stream = ImageUtil.HandleOrientation(e.ChosenPhoto, e.OriginalFileName);
+            stream = ImageUtil.Compress(stream);
+            EnableSaveButton();
+        }
+        #endregion
+
+        Stream stream;
+
+        private async Task UploadFile()
+        {
+            try
+            {
+                string fileName = DateTime.Now.Ticks.ToString() + ".jpg";
+                var upload = new Appacitive.Sdk.FileUpload("image/jpeg", fileName, 30);
+                var uploadUrl = await upload.GetUploadUrlAsync();
+
+                const int BLOCK_SIZE = 4096;
+                WebClient wc = new WebClient();
+                wc.Headers["Content-Type"] = "image/jpeg";
+                wc.AllowReadStreamBuffering = true;
+                wc.AllowWriteStreamBuffering = true;
+                wc.OpenWriteCompleted += (s, args) =>
+                {
+                    using (BinaryReader br = new BinaryReader(stream))
+                    {
+                        using (BinaryWriter bw = new BinaryWriter(args.Result))
+                        {
+                            long bCount = 0;
+                            long fileSize = stream.Length;
+                            byte[] bytes = new byte[BLOCK_SIZE];
+                            do
+                            {
+                                bytes = br.ReadBytes(BLOCK_SIZE);
+                                bCount += bytes.Length;
+                                bw.Write(bytes);
+                            } while (bCount < fileSize);
+                        }
+                    }
+                };
+
+                // what to do when writing is complete
+                wc.WriteStreamClosed += async (s, args) =>
+                {
+                    var download = new Appacitive.Sdk.FileDownload(fileName);
+                    string publicUrl = await download.GetPublicUrlAsync();
+
+                    await SaveImageDetails(publicUrl);
+                };
+
+                // Write to the WebClient
+                wc.OpenWriteAsync(new Uri(uploadUrl.Url, UriKind.Absolute), "PUT");
+            }
+            catch
+            {
+                MessageBox.Show("Failed to upload the image. Please try again.");
+                (ApplicationBar.Buttons[1] as ApplicationBarIconButton).IsEnabled = false;
+                progress.Visibility = System.Windows.Visibility.Collapsed;
+            }
         }
 
-        private void WriteBitmap(FrameworkElement element)
+        private async Task SaveImageDetails(string url)
         {
-            WriteableBitmap wBitmap = new WriteableBitmap(element, null);
-            imageStream = new MemoryStream();
-            wBitmap.SaveJpeg(imageStream, (int)element.ActualWidth, (int)element.ActualHeight, 0, 100);
+            var imageDetails = new ImageDetails();
+            imageDetails.Title = txtTitle.Text;
+            imageDetails.Message = txtMessage.Text;
+            imageDetails.Category = lstCategory.SelectedItem.ToString().ToLower();
+            imageDetails.Url = url;
+            imageDetails.IsPublic = chkPublic.IsChecked == true;
+
+            if (await imageDetails.Save() == false)
+            {
+                MessageBox.Show("Failed to upload the image. Please try again.");
+                (ApplicationBar.Buttons[1] as ApplicationBarIconButton).IsEnabled = false;
+                progress.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            else
+            {
+                //add new item to the list
+                App.ViewModel.AddItem(imageDetails);
+                
+                progress.Visibility = System.Windows.Visibility.Collapsed;
+                appBarCancel_Click();
+            }
+        }
+
+        private void EnableSaveButton()
+        {
+            if (txtTitle.Text.Trim() == string.Empty || stream == null) return;
+            (ApplicationBar.Buttons[0] as ApplicationBarIconButton).IsEnabled = true;
         }
 
         private void ShowList()
@@ -274,5 +369,4 @@ namespace Galleria
             progress.Visibility = System.Windows.Visibility.Collapsed;
         }
     }
-
 }

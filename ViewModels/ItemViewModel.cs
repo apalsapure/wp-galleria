@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
@@ -54,11 +55,14 @@ namespace Galleria
             }
         }
 
-        internal void LoadData()
+        internal async void LoadData()
         {
             this.IsDataLoaded = false;
 
-            this.Author = new User("someone@example.com", "text", "John", "Doe");
+            //get connected user
+            var result = await _imageDetails.GetConnectedObjectsAsync("author", fields: new List<string> { "firstname", "lastname", "email" });
+            if (result.Count > 0) this.Author = new User(result[0]);
+            else this.Author = new User("someone@example.com", "text", "John", "Doe");
 
             this.IsDataLoaded = true;
         }

@@ -1,19 +1,23 @@
-﻿using System;
+﻿using Appacitive.Sdk;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Galleria
 {
-    public class User
+    public class User : Appacitive.Sdk.APUser
     {
-        public string Id { get; set; }
-        public string Email { get; set; }
-        public string Username { get; set; }
+        public User()
+            : base()
+        { }
+
+        public User(Appacitive.Sdk.APObject existing)
+            : base(existing)
+        { }
+
         public string Name { get { return string.Format("{0} {1}", FirstName, LastName); } }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Password { get; set; }
 
         public User(string email, string password, string firstName, string lastName)
         {
@@ -24,36 +28,66 @@ namespace Galleria
             this.LastName = lastName;
         }
 
-        public static string Authenticate(string email, string password)
+        public static async Task<bool> IsLoggedIn()
         {
-            var faileMessage = "Authentication failed";
             try
             {
-                //Code to authenticate user on Appacitive will go here
-                //For now get the user from store and check the credentials
-                //remove this hard coded user
-                var user = new User(email, password, "test user", email);
+                var user = await Appacitive.Sdk.APUsers.GetLoggedInUserAsync();
+                if (user == null) return false;
+                Context.User = new User(user);
+                return true;
+            }
+            catch { return false; }
+        }
+
+        public async static Task<string> Authenticate(string email, string password)
+        {
+            var failedMessage = "Authentication failed";
+            try
+            {
+                //authenticate user on Appacitive
+                var credentials = new UsernamePasswordCredentials(email, password)
+                {
+                    TimeoutInSeconds = int.MaxValue,
+                    MaxAttempts = int.MaxValue
+                };
+
+                var userSession = await Appacitive.Sdk.App.LoginAsync(credentials);
+
+                //Logged in user
+                var user = new User(userSession.LoggedInUser);
 
                 Context.User = user;
 
                 return null;
             }
             catch { }
-            return faileMessage;
+            return failedMessage;
         }
 
-        public bool Save()
+        public async Task<bool> Save()
         {
-            //Save user in the backend
-            Context.User = this;
-            return true;
+            try
+            {
+                //Save user in the backend
+                await this.SaveAsync();
+                Context.User = this;
+                return true;
+            }
+            catch { return false; }
         }
 
-        public bool Logout()
+        public async Task<bool> Logout()
         {
-            //Invalidate user token in Appacitive API
-            Context.User = null;
-            return true;
+            try
+            {
+                //Logout user
+                await Appacitive.Sdk.App.LogoutAsync();
+
+                Context.User = null;
+                return true;
+            }
+            catch { return false; }
         }
     }
 }
