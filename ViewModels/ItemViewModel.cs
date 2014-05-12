@@ -61,7 +61,7 @@ namespace Galleria
 
             //get connected user
             var result = await _imageDetails.GetConnectedObjectsAsync("author", fields: new List<string> { "firstname", "lastname", "email" });
-            if (result.Count > 0) this.Author = new User(result[0]);
+            if (result.Count > 0) this.Author = result[0] as User;
             else this.Author = new User("someone@example.com", "text", "John", "Doe");
 
             this.IsDataLoaded = true;

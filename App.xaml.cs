@@ -82,11 +82,11 @@ namespace Galleria
         private void Application_Launching(object sender, LaunchingEventArgs e)
         {
             //Initializing Appacitive .Net SDK
-            Appacitive.Sdk.App.Initialize(Appacitive.Sdk.Platforms.WP7, "57653131622875838", "7iJVWEdcNE+0Au1SpMUFvw==", Appacitive.Sdk.Environment.Sandbox);
+            Appacitive.Sdk.AppContext.Initialize("57653131622875838", "7iJVWEdcNE+0Au1SpMUFvw==", Appacitive.Sdk.Environment.Sandbox);
 
             //Map your model object to appacitive type
-            Appacitive.Sdk.App.Types.MapObjectType<User>("user");
-            Appacitive.Sdk.App.Types.MapObjectType<ImageDetails>("image");
+            Appacitive.Sdk.AppContext.Types.MapObjectType<User>("user");
+            Appacitive.Sdk.AppContext.Types.MapObjectType<ImageDetails>("image");
         }
 
         // Code to execute when the application is activated (brought to foreground)

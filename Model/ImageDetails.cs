@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Appacitive.Sdk;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -89,7 +90,7 @@ namespace Galleria
 
         public bool IsOwner()
         {
-            return string.Equals(this.Get<string>("__createdby"), Context.User.Id);
+            return string.Equals(this.Get<string>("__createdby"), AppContext.UserContext.LoggedInUser.Id);
         }
 
         public async Task<bool> Save()
@@ -103,7 +104,7 @@ namespace Galleria
                     //when connection is saved, image is automatically created
                     await Appacitive.Sdk.APConnection
                                     .New("author")
-                                    .FromExistingObject("user", Context.User.Id)
+                                    .FromExistingObject("user", AppContext.UserContext.LoggedInUser.Id)
                                     .ToNewObject("image", this)
                                     .SaveAsync();
                 }

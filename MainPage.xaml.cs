@@ -45,16 +45,24 @@ namespace Galleria
         // Load data for the ViewModel Items
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (_isFirstTime)
+            try
             {
-                _isFirstTime = false;
-                progress.Visibility = System.Windows.Visibility.Visible;
-                if (await User.IsLoggedIn())
+                if (_isFirstTime)
                 {
-                    gPivot.Visibility = System.Windows.Visibility.Visible;
-                    ShowList();
-                    return;
+                    _isFirstTime = false;
+                    progress.Visibility = System.Windows.Visibility.Visible;
+                    if (await User.IsLoggedIn())
+                    {
+                        gPivot.Visibility = System.Windows.Visibility.Visible;
+                        ShowList();
+                        return;
+                    }
+                    gSingIn.Visibility = System.Windows.Visibility.Visible;
                 }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Please check you are connected to internet.", "Connectivity Issue !!!", MessageBoxButton.OK);
                 gSingIn.Visibility = System.Windows.Visibility.Visible;
             }
             //hide progress bar
@@ -137,7 +145,7 @@ namespace Galleria
         private async void menuSignOut_Click(object sender, EventArgs e)
         {
             progress.Visibility = System.Windows.Visibility.Visible;
-            if (await Context.User.Logout() == false) MessageBox.Show("Some error occurred, could not sign out.", "Sign out operation failed", MessageBoxButton.OK);
+            if (await User.Logout() == false) MessageBox.Show("Some error occurred, could not sign out.", "Sign out operation failed", MessageBoxButton.OK);
             else
             {
                 //clean up
@@ -270,45 +278,21 @@ namespace Galleria
         {
             try
             {
+                //create a memory stream
+                var memoryStream = new MemoryStream();
+                stream.Seek(0, SeekOrigin.Begin);
+                await stream.CopyToAsync(memoryStream);
+
+                //upload the file
                 string fileName = DateTime.Now.Ticks.ToString() + ".jpg";
                 var upload = new Appacitive.Sdk.FileUpload("image/jpeg", fileName, 30);
-                var uploadUrl = await upload.GetUploadUrlAsync();
+                await upload.UploadAsync(memoryStream.ToArray());
 
-                const int BLOCK_SIZE = 4096;
-                WebClient wc = new WebClient();
-                wc.Headers["Content-Type"] = "image/jpeg";
-                wc.AllowReadStreamBuffering = true;
-                wc.AllowWriteStreamBuffering = true;
-                wc.OpenWriteCompleted += (s, args) =>
-                {
-                    using (BinaryReader br = new BinaryReader(stream))
-                    {
-                        using (BinaryWriter bw = new BinaryWriter(args.Result))
-                        {
-                            long bCount = 0;
-                            long fileSize = stream.Length;
-                            byte[] bytes = new byte[BLOCK_SIZE];
-                            do
-                            {
-                                bytes = br.ReadBytes(BLOCK_SIZE);
-                                bCount += bytes.Length;
-                                bw.Write(bytes);
-                            } while (bCount < fileSize);
-                        }
-                    }
-                };
+                //get the public url for the file
+                var download = new Appacitive.Sdk.FileDownload(fileName);
+                string publicUrl = await download.GetPublicUrlAsync();
 
-                // what to do when writing is complete
-                wc.WriteStreamClosed += async (s, args) =>
-                {
-                    var download = new Appacitive.Sdk.FileDownload(fileName);
-                    string publicUrl = await download.GetPublicUrlAsync();
-
-                    await SaveImageDetails(publicUrl);
-                };
-
-                // Write to the WebClient
-                wc.OpenWriteAsync(new Uri(uploadUrl.Url, UriKind.Absolute), "PUT");
+                await SaveImageDetails(publicUrl);
             }
             catch
             {
@@ -337,7 +321,7 @@ namespace Galleria
             {
                 //add new item to the list
                 App.ViewModel.AddItem(imageDetails);
-                
+
                 progress.Visibility = System.Windows.Visibility.Collapsed;
                 appBarCancel_Click();
             }

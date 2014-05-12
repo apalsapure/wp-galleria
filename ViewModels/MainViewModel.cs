@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Appacitive.Sdk;
 
 
 namespace Galleria
@@ -87,7 +88,7 @@ namespace Galleria
             //get all images which are public or uploaded by me
             var query = Appacitive.Sdk.Query.Or(new[]{
                                     Appacitive.Sdk.Query.Property("ispublic").IsEqualTo(true),
-                                    Appacitive.Sdk.Query.Property("__createdby").IsEqualTo(Context.User.Id)
+                                    Appacitive.Sdk.Query.Property("__createdby").IsEqualTo(AppContext.UserContext.LoggedInUser.Id)
                         });
 
             

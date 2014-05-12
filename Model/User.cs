@@ -13,7 +13,7 @@ namespace Galleria
             : base()
         { }
 
-        public User(Appacitive.Sdk.APObject existing)
+        public User(Appacitive.Sdk.APUser existing)
             : base(existing)
         { }
 
@@ -34,10 +34,9 @@ namespace Galleria
             {
                 var user = await Appacitive.Sdk.APUsers.GetLoggedInUserAsync();
                 if (user == null) return false;
-                Context.User = new User(user);
                 return true;
             }
-            catch { return false; }
+            catch (AppacitiveApiException) { return false; }
         }
 
         public async static Task<string> Authenticate(string email, string password)
@@ -52,12 +51,7 @@ namespace Galleria
                     MaxAttempts = int.MaxValue
                 };
 
-                var userSession = await Appacitive.Sdk.App.LoginAsync(credentials);
-
-                //Logged in user
-                var user = new User(userSession.LoggedInUser);
-
-                Context.User = user;
+                await Appacitive.Sdk.AppContext.LoginAsync(credentials);
 
                 return null;
             }
@@ -71,20 +65,18 @@ namespace Galleria
             {
                 //Save user in the backend
                 await this.SaveAsync();
-                Context.User = this;
                 return true;
             }
             catch { return false; }
         }
 
-        public async Task<bool> Logout()
+        public static async Task<bool> Logout()
         {
             try
             {
                 //Logout user
-                await Appacitive.Sdk.App.LogoutAsync();
+                await Appacitive.Sdk.AppContext.LogoutAsync();
 
-                Context.User = null;
                 return true;
             }
             catch { return false; }
