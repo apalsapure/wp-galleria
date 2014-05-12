@@ -33,9 +33,6 @@ namespace Galleria
             // Set the data context of the listbox control to the sample data
             DataContext = App.ViewModel;
 
-            txtEmail.Text = "a@a.com";
-            txtPassword.Password = "aa";
-
             lstCategory.ItemsSource = new List<string> { "Food", "Place", "People" };
             txtTitle.TextChanged += txtTitle_TextChanged;
         }
@@ -117,22 +114,6 @@ namespace Galleria
         {
             gSingIn.Visibility = System.Windows.Visibility.Visible;
             gSingUp.Visibility = System.Windows.Visibility.Collapsed;
-        }
-
-        //user signing out
-        private void menuSignOut_Click(object sender, EventArgs e)
-        {
-            if (Context.User.Logout() == false) MessageBox.Show("Some error occurred, could not sign out.", "Sign out operation failed", MessageBoxButton.OK);
-            else
-            {
-                //clean up
-                if (App.ViewModel.FoodItems != null) App.ViewModel.FoodItems.Clear();
-                if (App.ViewModel.PlaceItems != null) App.ViewModel.PlaceItems.Clear();
-                if (App.ViewModel.PeopleItems != null) App.ViewModel.PeopleItems.Clear();
-                txtEmail.Text = txtPassword.Password = string.Empty;
-                gPivot.Visibility = System.Windows.Visibility.Collapsed;
-                gSingIn.Visibility = System.Windows.Visibility.Visible;
-            }
         }
 
         private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)

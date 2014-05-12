@@ -83,7 +83,6 @@
     <Compile Include="Model\ImageDetails.cs" />
     <Compile Include="Model\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utility\Context.cs" />
     <Compile Include="Utility\ImageUtil.cs" />
     <Compile Include="ViewModels\ItemViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />

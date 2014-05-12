@@ -289,9 +289,6 @@
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="False" IsMenuEnabled="True">
             <shell:ApplicationBarIconButton Text="add" IconUri="/Assets/AppBar/appbar.add.rest.png" Click="appBarAdd_Click"/>
-            <shell:ApplicationBar.MenuItems>
-                <shell:ApplicationBarMenuItem Text="logout" Click="menuSignOut_Click"/>
-            </shell:ApplicationBar.MenuItems>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
 </phone:PhoneApplicationPage>

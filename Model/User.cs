@@ -34,8 +34,6 @@ namespace Galleria
                 //remove this hard coded user
                 var user = new User(email, password, "test user", email);
 
-                Context.User = user;
-
                 return null;
             }
             catch { }
@@ -45,14 +43,12 @@ namespace Galleria
         public bool Save()
         {
             //Save user in the backend
-            Context.User = this;
             return true;
         }
 
         public bool Logout()
         {
             //Invalidate user token in Appacitive API
-            Context.User = null;
             return true;
         }
     }
