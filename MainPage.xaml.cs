@@ -35,9 +35,6 @@ namespace Galleria
             // Set the data context of the listbox control to the sample data
             DataContext = App.ViewModel;
 
-            txtEmail.Text = "a@a.com";
-            txtPassword.Password = "aa";
-
             lstCategory.ItemsSource = new List<string> { "Food", "Place", "People" };
             txtTitle.TextChanged += txtTitle_TextChanged;
         }
